@@ -1,0 +1,69 @@
+Project 1_Course5
+=======================
+
+Loading the data set And Calculating Number of steps for each day
+
+```{r,echo=TRUE}
+df<-read.csv("D:/All_coding_Activities/activity.csv")
+df[is.na(df)]=0
+tsteps<-tapply(df$steps,df$date,sum,na.rm=TRUE)
+tsteps
+
+
+```
+Calculating Number of steps
+```{r,echo=TRUE}
+library(ggplot2)
+
+dft<-data.frame(date=names(tsteps),steps=tsteps)
+ggplot(dft,aes(date,steps))+geom_col()
+```
+Mean And Median of Total Number of steps Per Day
+```{r,echo=TRUE}
+tmean<-tapply(df$steps,df$date,mean,na.rm=TRUE)
+tmedian<-tapply(df$steps,df$date,median,na.rm=TRUE)
+print(data.frame(date=names(tmean),mean_steps=tmean))
+print(data.frame(date=names(tmedian),median_steps=tmedian))
+
+
+```
+Printing the average steps per every 5 minute interval
+```{r,echo=TRUE}
+tavint<-tapply(df$steps,df$interval,mean)
+print(tavint)
+```
+Plotting Timeseries for average across five minute breaks
+```{r,echo=TRUE}
+dftavint<-data.frame(date=names(tavint),avg_steps=tavint)
+ggplot(dftavint,aes(date,avg_steps,group=1))+geom_line()
+```
+creating new variable in the dataframe weekdays
+```{r,echo=TRUE}
+
+df["weekday"]=weekdays(as.Date(df$date))
+ for (i in 1:17568)
+ {
+   if(df[i,"weekday"]=="Monday"||df[i,"weekday"]=="Tuesday"||df[i,"weekday"]=="Wednesday"||
+      df[i,"weekday"]=="Thursday"||df[i,"weekday"]=="Friday")
+   {
+     df[i,"weekdays"]="weekday"
+   }
+   else
+   {
+     df[i,"weekdays"]="weekend"
+   }
+ }
+head(df)
+```
+Plotting the timeseries for average steps on weekdays and weekends
+```{r,echo=TRUE}
+dfsp<-split(df,df$weekdays)
+wd<-dfsp$weekday
+ we<-dfsp$weekend
+ wda<-tapply(wd$steps,wd$interval,mean)
+ wea<-tapply(we$steps,we$interval,mean)
+ dfwd<-data.frame(date=names(wda),avg_steps=wda)
+ dfwe<-data.frame(date=names(wea),avg_steps=wea)
+ ggplot()+geom_line(dfwd,mapping=aes(date,avg_steps,group=1,color="red"))+geom_line(dfwe,mapping=aes(date,avg_steps,group=1,color="blue"))+scale_color_manual(labels = c("weekends", "weekdays"), values = c("blue", "red"))
+```
+
